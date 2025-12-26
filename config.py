@@ -20,13 +20,9 @@ class Config:
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Brevo SMTP Settings (Sending Only - No Email Receiving)
-    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp-relay.brevo.com')
-    SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
-    SMTP_LOGIN = os.getenv('SMTP_LOGIN')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
-    SMTP_TIMEOUT = 10  # Add timeout for SMTP connections
-    SENDER_EMAIL = os.getenv('SENDER_EMAIL')  # Send-only address
+    # Brevo API Settings (HTTP API - Railway blocks SMTP)
+    BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+    SENDER_EMAIL = os.getenv('SENDER_EMAIL')
     SENDER_NAME = os.getenv('SENDER_NAME', 'BBA Services')
     
     # Application Settings

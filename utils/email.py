@@ -1,16 +1,15 @@
 """
-Email sending utility using Brevo SMTP server.
-This module is configured for SENDING emails only - no receiving functionality.
+Email sending utility using Brevo HTTP API (not SMTP).
+Railway blocks SMTP ports, so we use the HTTP API instead.
 """
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 from flask import current_app, url_for
 
 
 def send_verification_email(user_email, token):
     """
-    Send verification email via Brevo SMTP (SEND ONLY).
+    Send verification email via Brevo HTTP API.
     
     Args:
         user_email: The recipient's email address
@@ -20,16 +19,19 @@ def send_verification_email(user_email, token):
         True if email sent successfully, False otherwise
     """
     try:
+        # Configure Brevo API
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = current_app.config['BREVO_API_KEY']
+        
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+        
         # Generate verification URL
         verification_url = f"{current_app.config['APP_URL']}/verify/{token}"
         
-        # Create email message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'Verify Your Email - BBA Services'
-        msg['From'] = f"{current_app.config['SENDER_NAME']} <{current_app.config['SENDER_EMAIL']}>"
-        msg['To'] = user_email
+        # Create email content
+        sender = {
+            "name": current_app.config['SENDER_NAME'],
         
-        # Create HTML content
         html_content = f"""
         <html>
         <head>
@@ -94,14 +96,16 @@ def send_verification_email(user_email, token):
         </html>
         """
         
-        # Attach HTML content
-        html_part = MIMEText(html_content, 'html')
-        msg.attach(html_part)
+        subject = "Verify Your Email - BBA Services"
         
-        # Send email via Brevo SMTP
-        timeout = current_app.config.get('SMTP_TIMEOUT', 10)
-        with smtplib.SMTP(current_app.config['SMTP_SERVER'], current_app.config['SMTP_PORT'], timeout=timeout) as server:
-            server.set_debuglevel(1)  # Enable debug output
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=to,
+            html_content=html_content,
+            sender=sender,
+            subject=subject
+        )
+        
+        api_response = api_instance.send_transac_email(send_smtp_email)    server.set_debuglevel(1)  # Enable debug output
             server.starttls()
             server.login(current_app.config['SMTP_LOGIN'], current_app.config['SMTP_PASSWORD'])
             server.send_message(msg)

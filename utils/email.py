@@ -99,7 +99,9 @@ def send_verification_email(user_email, token):
         msg.attach(html_part)
         
         # Send email via Brevo SMTP
-        with smtplib.SMTP(current_app.config['SMTP_SERVER'], current_app.config['SMTP_PORT'], timeout=10) as server:
+        timeout = current_app.config.get('SMTP_TIMEOUT', 10)
+        with smtplib.SMTP(current_app.config['SMTP_SERVER'], current_app.config['SMTP_PORT'], timeout=timeout) as server:
+            server.set_debuglevel(1)  # Enable debug output
             server.starttls()
             server.login(current_app.config['SMTP_LOGIN'], current_app.config['SMTP_PASSWORD'])
             server.send_message(msg)

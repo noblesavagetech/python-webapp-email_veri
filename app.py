@@ -17,10 +17,16 @@ def create_app():
     
     # Validate required configuration
     if not app.config.get('SQLALCHEMY_DATABASE_URI'):
-        raise RuntimeError(
-            "DATABASE_URL environment variable is not set. "
-            "Please add a PostgreSQL database in Railway and ensure DATABASE_URL is configured."
-        )
+        print("\n" + "="*80)
+        print("ERROR: DATABASE_URL environment variable is not set!")
+        print("="*80)
+        print("\nIn Railway:")
+        print("1. Click '+ New' button")
+        print("2. Select 'Database' → 'Add PostgreSQL'")
+        print("3. Railway will automatically set DATABASE_URL")
+        print("4. Redeploy your service")
+        print("="*80 + "\n")
+        raise RuntimeError("DATABASE_URL is required. Add PostgreSQL database in Railway.")
     
     # Initialize database
     db.init_app(app)

@@ -1,13 +1,11 @@
 #!/bin/bash
+set -e
 
-# Start PostgreSQL if not running
-if ! pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
-    echo "Starting PostgreSQL..."
-    postgres -D ~/pgdata -p 5432 -k /tmp > ~/postgres.log 2>&1 &
-    sleep 3
-fi
+echo "Running database initialization..."
+python init_db.py
 
-# Check if database exists, create if not
+echo "Starting application on port ${PORT}"
+exec gunicorn app:app --bind "0.0.0.0:${PORT}"
 if ! psql -h localhost -U vscode -lqt | cut -d \| -f 1 | grep -qw email_verification_db; then
     echo "Creating database..."
     psql -h localhost -U vscode -d postgres -c "CREATE DATABASE email_verification_db;"

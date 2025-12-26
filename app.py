@@ -15,6 +15,13 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
+    # Validate required configuration
+    if not app.config.get('SQLALCHEMY_DATABASE_URI'):
+        raise RuntimeError(
+            "DATABASE_URL environment variable is not set. "
+            "Please add a PostgreSQL database in Railway and ensure DATABASE_URL is configured."
+        )
+    
     # Initialize database
     db.init_app(app)
     
@@ -38,6 +45,12 @@ def create_app():
     
     return app
 
+# Create app instance for gunicorn
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Use PORT from environment (Railway sets this) or default to 5000
+    port = int(os.getenv('PORT', 5000))
+    # Only use debug mode in development
+    debug = os.getenv('FLASK_ENV') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug)

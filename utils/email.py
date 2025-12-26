@@ -109,16 +109,15 @@ def send_verification_email(user_email, token):
             subject=subject
         )
         
-        api_response = api_instance.send_transac_email(send_smtp_email)    server.set_debuglevel(1)  # Enable debug output
-            server.starttls()
-            server.login(current_app.config['SMTP_LOGIN'], current_app.config['SMTP_PASSWORD'])
-            server.send_message(msg)
-        
+        api_response = api_instance.send_transac_email(send_smtp_email)
         print(f"Verification email sent successfully to {user_email}")
         return True
         
     except Exception as e:
         print(f"Failed to send email to {user_email}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
         import traceback
         traceback.print_exc()
         return False

@@ -31,6 +31,10 @@ def send_verification_email(user_email, token):
         # Create email content
         sender = {
             "name": current_app.config['SENDER_NAME'],
+            "email": current_app.config['SENDER_EMAIL']
+        }
+        
+        to = [{"email": user_email}]
         
         html_content = f"""
         <html>

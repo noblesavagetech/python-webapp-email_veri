@@ -60,3 +60,6 @@ if __name__ == '__main__':
     # Only use debug mode in development
     debug = os.getenv('FLASK_ENV') != 'production'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
+# Gunicorn configuration (for Railway deployment)
+bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"
